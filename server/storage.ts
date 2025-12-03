@@ -71,24 +71,29 @@ export async function deleteArticle(id: string): Promise<void> {
   await db.delete(articles).where(eq(articles.id, id));
 }
 
+// User operations
+export async function getUserById(id: string): Promise<User | undefined> {
+  return await db.query.users.findFirst({
+    where: eq(users.id, id),
+  });
+}
+
+export async function getUserByUsername(username: string): Promise<User | undefined> {
+  return await db.query.users.findFirst({
+    where: eq(users.username, username),
+  });
+}
+
+export async function insertUser(user: InsertUser): Promise<User> {
+  const [newUser] = await db.insert(users).values(user).returning();
+  return newUser;
+}
+
 export const storage = {
-  getUser: (id: string) => {
-    // In a real app, you'd fetch this from your database.
-    // For now, we'll simulate it using MemStorage.
-    return Promise.resolve(undefined); // Placeholder
-  },
-  getUserByUsername: (username: string) => {
-    // In a real app, you'd fetch this from your database.
-    // For now, we'll simulate it using MemStorage.
-    return Promise.resolve(undefined); // Placeholder
-  },
-  createUser: (user: InsertUser) => {
-    // In a real app, you'd insert this into your database.
-    // For now, we'll simulate it using MemStorage.
-    const id = randomUUID();
-    const newUser: User = { ...user, id };
-    return Promise.resolve(newUser); // Placeholder
-  },
+  getUser: getUserById,
+  getUserByUsername,
+  insertUser,
+  createUser: insertUser,
   insertArticle,
   getAllArticles,
   getPublishedArticles,
