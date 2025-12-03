@@ -789,36 +789,17 @@ function ToolsSection() {
   );
 }
 
-const blogPosts = [
-  {
-    id: 1,
-    title: "Advanced Social Media OSINT Techniques",
-    excerpt: "Explore cutting-edge methods for extracting intelligence from social platforms while maintaining operational security.",
-    category: "Methodology",
-    readTime: "8 min read",
-    date: "2024-01-15"
-  },
-  {
-    id: 2,
-    title: "Geolocation Through Metadata Analysis",
-    excerpt: "A comprehensive guide to extracting location data from images, documents, and digital artifacts.",
-    category: "Technical",
-    readTime: "12 min read",
-    date: "2024-01-10"
-  },
-  {
-    id: 3,
-    title: "Dark Web Investigation Fundamentals",
-    excerpt: "Understanding the dark web ecosystem and developing safe investigation protocols for intelligence gathering.",
-    category: "Security",
-    readTime: "15 min read",
-    date: "2024-01-05"
-  }
-];
-
 function BlogSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/articles/published")
+      .then(res => res.json())
+      .then(data => setBlogPosts(data.slice(0, 3)))
+      .catch(() => {});
+  }, []);
 
   return (
     <section
@@ -848,7 +829,7 @@ function BlogSection() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {blogPosts.map((post, index) => (
+          {blogPosts.length > 0 ? blogPosts.map((post, index) => (
             <motion.article
               key={post.id}
               initial={{ opacity: 0, y: 50 }}
@@ -881,7 +862,7 @@ function BlogSection() {
                   
                   <div className="mt-4 pt-4 border-t border-neon/10 flex items-center justify-between">
                     <span className="font-mono text-xs text-muted-foreground/50">
-                      {post.date}
+                      {new Date(post.createdAt).toLocaleDateString()}
                     </span>
                     <button className="font-mono text-xs text-neon flex items-center gap-1 group-hover:gap-2 transition-all">
                       Read More
@@ -891,7 +872,11 @@ function BlogSection() {
                 </div>
               </div>
             </motion.article>
-          ))}
+          )) : (
+            <div className="col-span-3 text-center py-12">
+              <p className="font-mono text-muted-foreground">No articles published yet</p>
+            </div>
+          )}
         </div>
       </div>
     </section>
